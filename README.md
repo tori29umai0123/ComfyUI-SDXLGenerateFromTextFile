@@ -16,22 +16,21 @@ Diffusion（ComfyUI環境）で大量のプロンプトを処理する用途に�
 -   自動画像保存
 
 ## 入力項目
-
-  項目名                  説明
-  ----------------------- -------------------------------------
-  **file_path**           読み込むテキストファイルのパス
-  **resolution_counts**   `"幅*高さ:枚数"` のカンマ区切り指定
-  **random_mode**         ランダムに行を抽出するか
-  **negative_prompt**     ネガティブプロンプト
-  **model**               使用するモデル
-  **clip**                CLIP エンコーダ
-  **vae**                 デコーダ
-  **steps**               サンプリングステップ数
-  **cfg**                 CFG スケール
-  **sampler_name**        使用するサンプラー
-  **scheduler_name**      使用するスケジューラ
-  **seed**                ベースシード値
-  **output_prefix**       出力ファイル名の接頭辞
+| 項目名 | 説明 |
+|--------|------|
+| **file_path** | 読み込むテキストファイルのパス |
+| **resolution_counts** | `"幅*高さ:枚数"` のカンマ区切り指定 |
+| **random_mode** | ランダムに行を抽出するか |
+| **negative_prompt** | ネガティブプロンプト |
+| **model** | 使用するモデル |
+| **clip** | CLIP エンコーダ |
+| **vae** | デコーダ |
+| **steps** | サンプリングステップ数 |
+| **cfg** | CFG スケール |
+| **sampler_name** | 使用するサンプラー |
+| **scheduler_name** | 使用するスケジューラ |
+| **seed** | ベースシード値 |
+| **output_prefix** | 出力ファイル名の接頭辞 |
 
 ## resolution_counts のフォーマット
 
