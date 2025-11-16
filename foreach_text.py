@@ -61,6 +61,31 @@ class GenerateFromTextFile:
 
         return items
 
+    def select_lines_for_resolution(self, total_lines, count, random_mode):
+        """
+        ● 解像度ごとに独立した選択を行う
+        ● 同一解像度内は重複なし
+        ● count > total_lines の場合は不足分をランダムに補完
+        """
+        indices = list(range(total_lines))
+
+        if random_mode:
+            random.shuffle(indices)
+        # sequential mode →そのまま
+
+        # 足りない場合は追加
+        if count <= total_lines:
+            return indices[:count]
+        else:
+            # まず全行をユニークに使う
+            result = indices.copy()
+
+            # 残りをランダムに再利用（重複あり）
+            extra_needed = count - total_lines
+            result.extend(random.choices(indices, k=extra_needed))
+
+            return result
+
     def run(self, file_path, resolution_counts, random_mode,
             negative_prompt, model, clip, vae,
             steps, cfg, sampler_name, scheduler_name,
@@ -86,44 +111,25 @@ class GenerateFromTextFile:
 
         print("[INFO] Resolutions to generate:", res_list)
 
-        # ---- 全必要枚数を計算 ----
-        total_needed = sum(cnt for _, _, cnt in res_list)
-        print(f"[INFO] Total images needed: {total_needed}")
-
-        if total_needed > total_lines:
-            print(f"[WARN] Need {total_needed} lines but only {total_lines} available. Stopping early.")
-            total_needed = total_lines
-
-        # ---- ランダムモード処理 ----
-        if random_mode:
-            print("[INFO] RANDOM MODE: Selecting lines randomly (no duplicates).")
-            selected_indices = random.sample(range(total_lines), total_needed)
-        else:
-            print("[INFO] SEQUENTIAL MODE: Using lines in order.")
-            selected_indices = list(range(total_needed))
-
-        # 行参照ポインタ（randomでも順番に消費）
-        ptr = 0
-
         # ネガティブプロンプト
         neg = nodes.CLIPTextEncode().encode(clip, negative_prompt)[0]
 
         last_image = None
+        global_counter = 0
 
         # ---- 各解像度ループ ----
         for (width, height, count) in res_list:
-
             print(f"[INFO] ==== Resolution {width}x{height}, Count {count} ====")
 
-            for i in range(count):
+            # この解像度専用の行選択
+            selected_indices = self.select_lines_for_resolution(
+                total_lines, count, random_mode
+            )
 
-                if ptr >= total_needed:
-                    print("[WARN] No more lines available. Stopping.")
-                    return (last_image,)
+            print(f"[INFO] Using {len(selected_indices)} lines for this resolution")
 
-                line_index = selected_indices[ptr]
-                ptr += 1
-
+            # 生成ループ
+            for idx_in_res, line_index in enumerate(selected_indices):
                 text = original_lines[line_index]
                 print(f"[GEN] {text} (line {line_index})")
 
@@ -147,15 +153,14 @@ class GenerateFromTextFile:
                     latent
                 )[0]
 
-                # latent tensor
                 latent_tensor = out_latent_dict["samples"]
 
-                # VAEDecode
+                # VAE decode
                 decode_input = {"samples": latent_tensor}
                 out_img = nodes.VAEDecode().decode(vae, decode_input)[0]
 
-                # 保存
-                filename = f"{output_prefix}{width}x{height}_{ptr:05d}"
+                global_counter += 1
+                filename = f"{output_prefix}{width}x{height}_{global_counter:05d}"
                 nodes.SaveImage().save_images(out_img, filename)
 
                 last_image = out_img
