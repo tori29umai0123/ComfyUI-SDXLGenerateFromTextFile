@@ -1,5 +1,4 @@
-# GenerateFromTextFile --- README（日本語）
-
+# GenerateFromTextFile
 ## 概要
 
 **GenerateFromTextFile**
@@ -11,7 +10,7 @@ Stable Diffusion（ComfyUI環境）で大量のプロンプトを処理する用
 -   テキストファイルの各行をプロンプトとして読み込み
 -   複数解像度・生成枚数を指定可能
 -   ランダムモードで行をランダム抽出（重複なし）
--   行番号によるシード変化（seed + 行番号）
+-   生成する 1画像ごとにランダムな seed を自動生成
 -   自動画像保存
 
 ## 入力項目
@@ -29,7 +28,6 @@ Stable Diffusion（ComfyUI環境）で大量のプロンプトを処理する用
   **cfg**                 CFG スケール
   **sampler_name**        使用するサンプラー
   **scheduler_name**      使用するスケジューラ
-  **seed**                ベースシード値
   **output_prefix**       出力ファイル名の接頭辞
 
 ## resolution_counts のフォーマット
