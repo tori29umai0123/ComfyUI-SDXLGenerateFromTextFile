@@ -1,4 +1,4 @@
-# GenerateFromTextFile --- README（日本語）
+# GenerateFromTextFile
 
 ## 概要
 
